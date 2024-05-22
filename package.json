@@ -1,0 +1,7 @@
+{
+  "name": "stella",
+  "workspaces": [
+    "./packages/*",
+    "./samples/*"
+  ]
+}
