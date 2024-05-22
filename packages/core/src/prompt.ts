@@ -4,12 +4,12 @@ import { Function, FunctionHandler, Message, Schema } from './types';
 import { Logger } from './logger';
 import { ChatPlugin, Plugins } from './plugins';
 
-export interface PromptOptions {
-  readonly name: string;
-  readonly src: string;
-}
-
 export class Prompt {
+  readonly name: string;
+  get path(): string[] {
+    return [...(this._parent?.path || []), this.name];
+  }
+
   private readonly _template: Handlebars.TemplateDelegate;
   private readonly _history: Message[];
   private readonly _prompts: { [key: string]: Prompt } = { };
@@ -32,10 +32,11 @@ export class Prompt {
     return this._plugins.chat || this._parent?._chat;
   }
 
-  constructor(options: PromptOptions) {
-    this._template = Handlebars.compile(options.src);
+  constructor(name: string, src: string) {
+    this.name = name;
+    this._template = Handlebars.compile(src);
+    this._log = new Logger(`stella:prompt:${this.path.join(':')}`);
     this._history = [];
-    this._log = new Logger(`stella:prompt:${options.name}`);
   }
 
   plugin<T extends keyof Plugins>(type: T, plugin: Plugins[T]): Prompt {
@@ -43,9 +44,9 @@ export class Prompt {
     return this;
   }
 
-  prompt(name: string, src: string): Prompt {
-    this._prompts[name] = new Prompt({ name, src });
-    this._prompts[name]._parent = this;
+  prompt(prompt: Prompt): Prompt {
+    prompt._parent = this;
+    this._prompts[prompt.name] = prompt;
     return this;
   }
 

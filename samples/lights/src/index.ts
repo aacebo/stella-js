@@ -13,10 +13,10 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-const prompt = new Prompt({
-  name: 'root',
-  src: 'you are an expert on turning the lights on or off and telling me the status.'
-}).plugin('chat', new OpenAIChatPlugin({
+const prompt = new Prompt(
+  'root',
+  'you are an expert on turning the lights on or off and telling me the status.'
+).plugin('chat', new OpenAIChatPlugin({
   apiKey: process.env.OPENAI_API_KEY,
   model: 'gpt-4-turbo',
   temperature: 0,
