@@ -14,8 +14,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "npx rimraf dist",
     "build": "npm run clean && tsc -p .",
-    "start": "DEBUG=stella* node -r dotenv/config .",
-    "debug": "DEBUG=stella* NODE_OPTIONS=\"-r dotenv/config --no-deprecation\" npx ts-node --skipProject src/index.ts"
+    "start": "DEBUG=stella:*,-*:info node -r dotenv/config .",
+    "debug": "DEBUG=stella:*,-*:info NODE_OPTIONS=\"-r dotenv/config --no-deprecation\" npx ts-node --skipProject src/index.ts"
   },
   "dependencies": {
     "@stella/core": "file:../../packages/core",

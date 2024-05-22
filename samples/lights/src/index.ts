@@ -39,7 +39,7 @@ const prompt = new Prompt({
   process.stdout.write('$: ');
 
   for await (const line of rl) {
-    if (line === 'exit') return;
+    if (line === 'exit') return process.exit(0);
 
     const res = await prompt.create_chat(line, chunk => {
       process.stdout.write(chunk);
