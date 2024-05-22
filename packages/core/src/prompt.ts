@@ -6,6 +6,7 @@ import { ChatPlugin, Plugins } from './plugins';
 
 export class Prompt {
   readonly name: string;
+
   get path(): string[] {
     return [...(this._parent?.path || []), this.name];
   }
