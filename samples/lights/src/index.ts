@@ -1,6 +1,6 @@
 import readline from 'node:readline';
 import { Prompt } from '@stella/core';
-import { OpenAIChatPlugin } from '@stella/openai';
+import { OpenAITextPlugin } from '@stella/openai';
 
 if (!process.env.OPENAI_API_KEY) {
   throw new Error('`OPENAI_API_KEY` is required');
@@ -16,7 +16,7 @@ const rl = readline.createInterface({
 const prompt = new Prompt(
   'root',
   'you are an expert on turning the lights on or off and telling me the status.'
-).plugin('chat', new OpenAIChatPlugin({
+).use(new OpenAITextPlugin({
   apiKey: process.env.OPENAI_API_KEY,
   model: 'gpt-4-turbo',
   temperature: 0,
@@ -41,7 +41,7 @@ const prompt = new Prompt(
   for await (const line of rl) {
     if (line === 'exit') return process.exit(0);
 
-    const res = await prompt.create_chat(line, chunk => {
+    const res = await prompt.text('openai:gpt-4-turbo', line, chunk => {
       process.stdout.write(chunk);
     });
 

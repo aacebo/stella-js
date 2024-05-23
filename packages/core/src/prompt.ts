@@ -2,7 +2,7 @@ import Handlebars from 'handlebars';
 
 import { Function, FunctionHandler, Message, Schema } from './types';
 import { Logger } from './logger';
-import { ChatPlugin, Plugins } from './plugins';
+import { Plugin } from './plugins';
 
 export class Prompt {
   readonly name: string;
@@ -14,7 +14,7 @@ export class Prompt {
   private readonly _template: Handlebars.TemplateDelegate;
   private readonly _history: Message[];
   private readonly _prompts: { [key: string]: Prompt } = { };
-  private readonly _plugins: Plugins = { };
+  private readonly _plugins: { [name: string]: Plugin } = { };
   private readonly _functions: { [key: string]: Function } = { };
   private readonly _log: Logger;
   private _parent?: Prompt;
@@ -29,10 +29,6 @@ export class Prompt {
     return v;
   }
 
-  private get _chat(): ChatPlugin | undefined {
-    return this._plugins.chat || this._parent?._chat;
-  }
-
   constructor(name: string, src: string) {
     this.name = name;
     this._template = Handlebars.compile(src);
@@ -40,8 +36,8 @@ export class Prompt {
     this._history = [];
   }
 
-  plugin<T extends keyof Plugins>(type: T, plugin: Plugins[T]): Prompt {
-    this._plugins[type] = plugin;
+  use(plugin: Plugin): Prompt {
+    this._plugins[plugin.name] = plugin;
     return this;
   }
 
@@ -75,10 +71,14 @@ export class Prompt {
     return this;
   }
 
-  async create_chat(text: string, on_chunk?: (chunk: string) => void) {
-    const plugin = this._chat;
+  async text(name: string, text: string, on_chunk?: (chunk: string) => void) {
+    const plugin = this._get_plugin(name);
 
-    if (!plugin) throw new Error('no chat plugin found');
+    if (!plugin) throw new Error('no plugin found');
+    if (!('text' in plugin)) {
+      throw new Error(`${name} is not a text plugin`);
+    }
+
     if (this._history.length === 0) {
       let fns = '';
 
@@ -88,7 +88,7 @@ export class Prompt {
 
       this._history.push({
         role: 'system',
-        content: plugin.native_functions ? this._template(this._context) : `
+        content: plugin.tags.includes('functions') ? this._template(this._context) : `
         Do not respond using markdown.
         Respond only with the handlebars template language:
         - https://handlebarsjs.com/guide/expressions.html#basic-usage
@@ -101,7 +101,7 @@ export class Prompt {
     }
 
     let buffer = '';
-    const message = await plugin.create_chat({
+    const message = await plugin.text({
       text,
       history: this._history,
       functions: this._functions
@@ -121,5 +121,13 @@ export class Prompt {
     });
 
     return message.content || '';
+  }
+
+  private _get_plugin(name: string): Plugin | undefined {
+    if (this._plugins[name]) {
+      return this._plugins[name];
+    }
+
+    return this._parent?._get_plugin(name);
   }
 }

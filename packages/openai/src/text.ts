@@ -1,27 +1,28 @@
-import { ChatPlugin, CreateChatParams, Message, Logger } from '@stella/core';
+import { TextPlugin, TextParams, Message, Logger, PluginTag } from '@stella/core';
 import OpenAI, { ClientOptions } from 'openai';
 import { Stream } from 'openai/streaming';
 
 export interface OpenAIChatPluginOptions extends ClientOptions {
+  readonly name?: string;
   readonly model: string;
   readonly stream?: boolean;
   readonly temperature?: number;
 }
 
-export class OpenAIChatPlugin implements ChatPlugin {
+export class OpenAITextPlugin implements TextPlugin {
+  readonly name: string;
+  readonly tags: PluginTag[] = ['functions'];
+
   private readonly _openai: OpenAI;
   private readonly _log: Logger;
 
-  get native_functions() {
-    return true;
-  }
-
   constructor(readonly options: OpenAIChatPluginOptions) {
+    this.name = options.name || `openai:${options.model}`;
     this._openai = new OpenAI(options);
     this._log = new Logger('stella:openai');
   }
 
-  async create_chat(params: CreateChatParams, on_chunk?: (chunk: Message) => void): Promise<Message> {
+  async text(params: TextParams, on_chunk?: (chunk: Message) => void): Promise<Message> {
     const messages = params.history || [];
     const tools: OpenAI.ChatCompletionTool[] = [];
 
@@ -128,7 +129,7 @@ export class OpenAIChatPlugin implements ChatPlugin {
   }
 
   private async _on_tool(
-    params: CreateChatParams,
+    params: TextParams,
     messages: Message[],
     message: OpenAI.ChatCompletionMessage | OpenAI.Chat.Completions.ChatCompletionChunk.Choice.Delta,
     on_chunk?: (chunk: Message) => void
@@ -189,7 +190,7 @@ export class OpenAIChatPlugin implements ChatPlugin {
         function_id: call.id
       });
 
-      return this.create_chat({
+      return this.text({
         functions: params.functions,
         history: messages
       }, on_chunk);

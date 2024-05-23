@@ -1,7 +1,9 @@
-import { ChatPlugin } from './chat';
+import { AudioPlugin } from './audio';
+import { TextPlugin } from './text';
 
-export interface Plugins {
-  readonly chat?: ChatPlugin;
-}
+export type Plugin =
+  TextPlugin |
+  AudioPlugin;
 
-export * from './chat';
+export * from './base';
+export * from './text';

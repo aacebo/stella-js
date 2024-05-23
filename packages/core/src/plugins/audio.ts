@@ -1,16 +1,16 @@
 import { Function, Message } from '../types';
 
-export interface CreateChatParams {
+import { PluginBase } from './base';
+
+export interface AudioParams {
   readonly text?: string;
   readonly history?: Message[];
   readonly functions?: { [key: string]: Function | undefined };
 }
 
-export interface ChatPlugin {
-  native_functions: boolean;
-
-  create_chat(
-    params: CreateChatParams,
+export interface AudioPlugin extends PluginBase {
+  audio(
+    params: AudioParams,
     on_chunk?: (chunk: Message) => void
   ): Promise<Message>;
 }
