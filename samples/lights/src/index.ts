@@ -7,7 +7,7 @@ if (!process.env.OPENAI_API_KEY) {
   throw new Error('`OPENAI_API_KEY` is required');
 }
 
-const STREAM = true;
+const stream = true;
 let status = false;
 const rl = readline.createInterface({
   input: process.stdin,
@@ -21,7 +21,7 @@ let prompt = new Prompt(
   model: 'gpt-4o',
   apiKey: process.env.OPENAI_API_KEY,
   temperature: 0,
-  stream: STREAM
+  stream: stream
 })).use(new OpenAIAudioPlugin({
   model: 'tts-1',
   apiKey: process.env.OPENAI_API_KEY
@@ -70,7 +70,7 @@ prompt = prompt.function(
       process.stdout.write(chunk);
     });
 
-    if (!STREAM) {
+    if (!stream) {
       process.stdout.write(res);
     }
 
