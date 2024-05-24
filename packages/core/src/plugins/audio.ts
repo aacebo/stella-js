@@ -7,6 +7,7 @@ export interface TextToAudioParams {
 }
 
 export interface AudioToTextParams {
+  readonly type: string;
   readonly data: Buffer;
   readonly prompt?: string;
   readonly lang?: string;

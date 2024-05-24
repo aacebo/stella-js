@@ -29,9 +29,9 @@ export class Prompt {
     return v;
   }
 
-  constructor(name: string, src: string) {
+  constructor(name: string, src?: string) {
     this.name = name;
-    this._template = Handlebars.compile(src);
+    this._template = Handlebars.compile(src, { strict: true });
     this._log = new Logger(`stella:prompt:${this.path.join(':')}`);
     this._history = [];
   }
@@ -132,7 +132,7 @@ export class Prompt {
       let content = buffer;
 
       try {
-        const template = Handlebars.compile(content);
+        const template = Handlebars.compile(content, { strict: true });
         buffer = '';
 
         on_chunk(template(this._context));
@@ -182,7 +182,7 @@ export class Prompt {
       `
     });
 
-    const template = Handlebars.compile(res);
+    const template = Handlebars.compile(res, { strict: true });
     return template(this._context);
   }
 

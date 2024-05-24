@@ -22,7 +22,7 @@ export class OpenAIAudioPlugin implements AudioPlugin {
   async audio_to_text(params: AudioToTextParams) {
     try {
       const res = await this._openai.audio.transcriptions.create({
-        file: await toFile(params.data),
+        file: await toFile(params.data, `temp.${params.type}`, { type: params.type }),
         model: this.options.model,
         language: params.lang,
         prompt: params.prompt
