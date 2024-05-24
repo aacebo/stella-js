@@ -2,7 +2,7 @@ import { TextPlugin, TextParams, Message, Logger, PluginTag } from '@stella/core
 import OpenAI, { ClientOptions } from 'openai';
 import { Stream } from 'openai/streaming';
 
-export interface OpenAIChatPluginOptions extends ClientOptions {
+export interface OpenAITextPluginOptions extends ClientOptions {
   readonly name?: string;
   readonly model: string;
   readonly stream?: boolean;
@@ -16,10 +16,10 @@ export class OpenAITextPlugin implements TextPlugin {
   private readonly _openai: OpenAI;
   private readonly _log: Logger;
 
-  constructor(readonly options: OpenAIChatPluginOptions) {
+  constructor(readonly options: OpenAITextPluginOptions) {
     this.name = options.name || `openai:${options.model}`;
     this._openai = new OpenAI(options);
-    this._log = new Logger('stella:openai');
+    this._log = new Logger('stella:openai:text');
   }
 
   async text(params: TextParams, on_chunk?: (chunk: Message) => void): Promise<Message> {
@@ -46,86 +46,90 @@ export class OpenAITextPlugin implements TextPlugin {
       });
     }
 
-    this._log.info(JSON.stringify(messages[messages.length - 1], null, 2));
-    const completion = await this._openai.chat.completions.create({
-      tools,
-      model: this.options.model,
-      temperature: this.options.temperature,
-      stream: this.options.stream,
-      messages: messages.map(message => {
-        if (message.role === 'model') {
-          return {
-            role: 'assistant',
-            content: message.content,
-            tool_calls: message.function_calls?.map(fn => ({
-              id: fn.id,
-              type: 'function',
-              function: {
-                name: fn.name,
-                arguments: JSON.stringify(fn.arguments)
-              }
-            }))
-          };
+    try {
+      const completion = await this._openai.chat.completions.create({
+        tools,
+        model: this.options.model,
+        temperature: this.options.temperature,
+        stream: this.options.stream,
+        messages: messages.map(message => {
+          if (message.role === 'model') {
+            return {
+              role: 'assistant',
+              content: message.content,
+              tool_calls: message.function_calls?.map(fn => ({
+                id: fn.id,
+                type: 'function',
+                function: {
+                  name: fn.name,
+                  arguments: JSON.stringify(fn.arguments)
+                }
+              }))
+            };
+          }
+
+          if (message.role === 'function') {
+            return {
+              role: 'tool',
+              content: message.content || 'null',
+              tool_call_id: message.function_id
+            };
+          }
+
+          return message;
+        })
+      });
+
+      if (!(completion instanceof Stream)) {
+        const message = completion.choices[0].message;
+
+        if (message.tool_calls) {
+          return this._on_tool(params, messages, message, on_chunk);
         }
 
-        if (message.role === 'function') {
-          return {
-            role: 'tool',
-            content: message.content || 'null',
-            tool_call_id: message.function_id
-          };
-        }
+        const res: Message = {
+          role: 'model',
+          content: message.content || undefined
+        };
 
-        return message;
-      })
-    });
-
-    if (!(completion instanceof Stream)) {
-      const message = completion.choices[0].message;
-
-      if (message.tool_calls) {
-        return this._on_tool(params, messages, message, on_chunk);
+        messages.push(res);
+        return res;
       }
 
-      const res: Message = {
+      let message: Message = {
         role: 'model',
-        content: message.content || undefined
+        content: ''
       };
 
-      messages.push(res);
-      return res;
-    }
+      for await (const chunk of completion) {
+        const delta = chunk.choices[0].delta;
 
-    let message: Message = {
-      role: 'model',
-      content: ''
-    };
+        if (delta.tool_calls && delta.tool_calls.length > 0) {
+          return this._on_tool(params, messages, delta, on_chunk);
+        }
 
-    for await (const chunk of completion) {
-      const delta = chunk.choices[0].delta;
+        if (delta.content) {
+          if (message.content) {
+            message.content += delta.content;
+          } else {
+            message.content = delta.content;
+          }
+        }
 
-      if (delta.tool_calls && delta.tool_calls.length > 0) {
-        return this._on_tool(params, messages, delta, on_chunk);
-      }
-
-      if (delta.content) {
-        if (message.content) {
-          message.content += delta.content;
-        } else {
-          message.content = delta.content;
+        if (on_chunk) {
+          on_chunk({
+            role: 'model',
+            content: delta.content || undefined
+          });
         }
       }
 
-      if (on_chunk) {
-        on_chunk({
-          role: 'model',
-          content: delta.content || undefined
-        });
-      }
+      messages.push(message);
+      return message;
+    } catch (err) {
+      this._log.error(err);
+      throw err;
     }
-
-    messages.push(message);
-    return message;
   }
 
   private async _on_tool(

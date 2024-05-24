@@ -2,7 +2,7 @@ import Handlebars from 'handlebars';
 
 import { Function, FunctionHandler, Message, Schema } from './types';
 import { Logger } from './logger';
-import { Plugin } from './plugins';
+import { Plugin, TextToAudioParams } from './plugins';
 
 export class Prompt {
   readonly name: string;
@@ -132,6 +132,27 @@ export class Prompt {
     });
 
     return message.content || '';
+  }
+
+  async text_to_audio(params: TextToAudioParams): Promise<Buffer>;
+  async text_to_audio(name: string, params: TextToAudioParams): Promise<Buffer>;
+  async text_to_audio(...args: any[]) {
+    const names = Object.keys(this._plugins || { });
+
+    if (names.length === 0) {
+      throw new Error('no plugins found');
+    }
+
+    const name: string | undefined = args.length === 1 ? names[0] : args[0];
+    const params: TextToAudioParams = args.length === 1 ? args[0] : args[1];
+    const plugin = this._get_plugin(name || '');
+
+    if (!plugin) throw new Error('no plugin found');
+    if (!('text_to_audio' in plugin) || !plugin.text_to_audio) {
+      throw new Error(`${name} cannot translate text to audio`);
+    }
+
+    return await plugin.text_to_audio(params);
   }
 
   private _get_plugin(name: string): Plugin | undefined {
