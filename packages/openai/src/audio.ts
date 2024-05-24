@@ -8,7 +8,7 @@ export interface OpenAIAudioPluginOptions extends ClientOptions {
 
 export class OpenAIAudioPlugin implements AudioPlugin {
   readonly name: string;
-  readonly tags: PluginTag[] = [];
+  readonly tags: PluginTag[] = ['audio'];
 
   private readonly _openai: OpenAI;
   private readonly _log: Logger;

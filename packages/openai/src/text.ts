@@ -11,7 +11,7 @@ export interface OpenAITextPluginOptions extends ClientOptions {
 
 export class OpenAITextPlugin implements TextPlugin {
   readonly name: string;
-  readonly tags: PluginTag[] = ['functions'];
+  readonly tags: PluginTag[] = ['functions', 'text'];
 
   private readonly _openai: OpenAI;
   private readonly _log: Logger;

@@ -1,5 +1,9 @@
 export type PluginTag =
-  'functions';
+  'functions' |
+  'text' |
+  'audio' |
+  'image' |
+  'video';
 
 export interface PluginBase {
   readonly name: string;

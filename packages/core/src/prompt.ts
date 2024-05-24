@@ -84,16 +84,14 @@ export class Prompt {
   async text(text: string, on_chunk?: (chunk: string) => void): Promise<string>;
   async text(name: string, text: string, on_chunk?: (chunk: string) => void): Promise<string>;
   async text(...args: any[]) {
-    const names = Object.keys(this._plugins || { });
-
-    if (names.length === 0) {
-      throw new Error('no plugins found');
-    }
-
-    const name: string | undefined = args.length === 2 ? names[0] : args[0];
+    let plugin = Object.values(this._plugins).find(p => p.tags.includes('text'));
+    const name: string | undefined = args.length === 2 ? undefined : args[0];
     const text: string = args.length === 2 ? args[0] : args[1];
     const on_chunk: ((chunk: string) => void | undefined) = args.length === 2 ? args[1] : args[2];
-    const plugin = this._get_plugin(name || '');
+
+    if (name) {
+      plugin = this._get_plugin(name);
+    }
 
     if (!plugin) throw new Error('no plugin found');
     if (!('text' in plugin)) {
@@ -148,15 +146,13 @@ export class Prompt {
   async audio_to_text(params: AudioToTextParams): Promise<string>;
   async audio_to_text(name: string, params: AudioToTextParams): Promise<string>;
   async audio_to_text(...args: any[]) {
-    const names = Object.keys(this._plugins || { });
-
-    if (names.length === 0) {
-      throw new Error('no plugins found');
-    }
-
-    const name: string | undefined = args.length === 1 ? names[0] : args[0];
+    let plugin = Object.values(this._plugins).find(p => p.tags.includes('audio'));
+    const name: string | undefined = args.length === 1 ? undefined : args[0];
     const params: AudioToTextParams = args.length === 1 ? args[0] : args[1];
-    const plugin = this._get_plugin(name || '');
+
+    if (name) {
+      plugin = this._get_plugin(name);
+    }
 
     if (!plugin) throw new Error('no plugin found');
     if (!('audio_to_text' in plugin) || !plugin.audio_to_text) {
@@ -189,15 +185,13 @@ export class Prompt {
   async text_to_audio(params: TextToAudioParams): Promise<Buffer>;
   async text_to_audio(name: string, params: TextToAudioParams): Promise<Buffer>;
   async text_to_audio(...args: any[]) {
-    const names = Object.keys(this._plugins || { });
-
-    if (names.length === 0) {
-      throw new Error('no plugins found');
-    }
-
-    const name: string | undefined = args.length === 1 ? names[0] : args[0];
+    let plugin = Object.values(this._plugins).find(p => p.tags.includes('audio'));
+    const name: string | undefined = args.length === 1 ? undefined : args[0];
     const params: TextToAudioParams = args.length === 1 ? args[0] : args[1];
-    const plugin = this._get_plugin(name || '');
+
+    if (name) {
+      plugin = this._get_plugin(name);
+    }
 
     if (!plugin) throw new Error('no plugin found');
     if (!('text_to_audio' in plugin) || !plugin.text_to_audio) {
