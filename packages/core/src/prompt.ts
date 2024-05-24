@@ -2,7 +2,7 @@ import Handlebars from 'handlebars';
 
 import { Function, FunctionHandler, Message, Schema } from './types';
 import { Logger } from './logger';
-import { Plugin, TextToAudioParams } from './plugins';
+import { AudioToTextParams, Plugin, TextToAudioParams } from './plugins';
 
 export class Prompt {
   readonly name: string;
@@ -131,7 +131,49 @@ export class Prompt {
       }
     });
 
-    return message.content || '';
+    const template = Handlebars.compile(message.content || '');
+    return template(this._context);
+  }
+
+  async audio_to_text(params: AudioToTextParams): Promise<string>;
+  async audio_to_text(name: string, params: AudioToTextParams): Promise<string>;
+  async audio_to_text(...args: any[]) {
+    const names = Object.keys(this._plugins || { });
+
+    if (names.length === 0) {
+      throw new Error('no plugins found');
+    }
+
+    const name: string | undefined = args.length === 1 ? names[0] : args[0];
+    const params: AudioToTextParams = args.length === 1 ? args[0] : args[1];
+    const plugin = this._get_plugin(name || '');
+
+    if (!plugin) throw new Error('no plugin found');
+    if (!('audio_to_text' in plugin) || !plugin.audio_to_text) {
+      throw new Error(`${name} cannot transcript audio to text`);
+    }
+
+    let fns = '';
+
+    for (const fn of Object.values(this._functions)) {
+      fns += `- ${fn.name}:\n\t- description: ${fn.description}\n\t- parameters: ${JSON.stringify(fn.parameters)}\n\n`;
+    }
+
+    const res = await plugin.audio_to_text({
+      ...params,
+      prompt: params.prompt || `
+      Do not respond using markdown.
+      Respond only with the handlebars template language:
+      - https://handlebarsjs.com/guide/expressions.html#basic-usage
+
+      You can call the following functions:
+      ${fns}
+      ${this._template(this._context)}
+      `
+    });
+
+    const template = Handlebars.compile(res);
+    return template(this._context);
   }
 
   async text_to_audio(params: TextToAudioParams): Promise<Buffer>;

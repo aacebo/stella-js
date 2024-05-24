@@ -17,9 +17,9 @@ export class OpenAITextPlugin implements TextPlugin {
   private readonly _log: Logger;
 
   constructor(readonly options: OpenAITextPluginOptions) {
-    this.name = options.name || `openai:${options.model}`;
+    this.name = options.name || `openai:text:${options.model}`;
     this._openai = new OpenAI(options);
-    this._log = new Logger('stella:openai:text');
+    this._log = new Logger(`stella:${this.name}`);
   }
 
   async text(params: TextParams, on_chunk?: (chunk: Message) => void): Promise<Message> {

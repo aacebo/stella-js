@@ -5,6 +5,5 @@ export type Plugin =
   TextPlugin |
   AudioPlugin;
 
-export * from './base';
 export * from './text';
 export * from './audio';

@@ -14,9 +14,9 @@ export class OpenAIAudioPlugin implements AudioPlugin {
   private readonly _log: Logger;
 
   constructor(readonly options: OpenAIAudioPluginOptions) {
-    this.name = options.name || `openai:${options.model}`;
+    this.name = options.name || `openai:audio:${options.model}`;
     this._openai = new OpenAI(options);
-    this._log = new Logger('stella:openai:audio');
+    this._log = new Logger(`stella:${this.name}`);
   }
 
   async audio_to_text(params: AudioToTextParams) {
