@@ -41,7 +41,7 @@ const prompt = new Prompt(
   for await (const line of rl) {
     if (line === 'exit') return process.exit(0);
 
-    const res = await prompt.text('openai:gpt-4-turbo', line, chunk => {
+    const res = await prompt.text(line, chunk => {
       process.stdout.write(chunk);
     });
 

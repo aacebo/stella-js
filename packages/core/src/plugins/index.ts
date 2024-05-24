@@ -7,3 +7,4 @@ export type Plugin =
 
 export * from './base';
 export * from './text';
+export * from './audio';

@@ -1,16 +1,12 @@
-import { Function, Message } from '../types';
-
 import { PluginBase } from './base';
 
-export interface AudioParams {
-  readonly text?: string;
-  readonly history?: Message[];
-  readonly functions?: { [key: string]: Function | undefined };
+export interface TextToAudioParams {
+}
+
+export interface AudioToTextParams {
 }
 
 export interface AudioPlugin extends PluginBase {
-  audio(
-    params: AudioParams,
-    on_chunk?: (chunk: Message) => void
-  ): Promise<Message>;
+  text_to_audio?(params: TextToAudioParams): Promise<ArrayBuffer>;
+  audio_to_text?(params: AudioToTextParams): Promise<string>;
 }

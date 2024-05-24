@@ -71,8 +71,19 @@ export class Prompt {
     return this;
   }
 
-  async text(name: string, text: string, on_chunk?: (chunk: string) => void) {
-    const plugin = this._get_plugin(name);
+  async text(text: string, on_chunk?: (chunk: string) => void): Promise<string>;
+  async text(name: string, text: string, on_chunk?: (chunk: string) => void): Promise<string>;
+  async text(...args: any[]) {
+    const names = Object.keys(this._plugins || { });
+
+    if (names.length === 0) {
+      throw new Error('no plugins found');
+    }
+
+    const name: string | undefined = args.length === 2 ? names[0] : args[0];
+    const text: string = args.length === 2 ? args[0] : args[1];
+    const on_chunk: ((chunk: string) => void | undefined) = args.length === 2 ? args[1] : args[2];
+    const plugin = this._get_plugin(name || '');
 
     if (!plugin) throw new Error('no plugin found');
     if (!('text' in plugin)) {
