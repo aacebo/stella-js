@@ -18,7 +18,7 @@ let prompt = new Prompt(
   'root',
   'you are an expert on turning the lights on or off and telling me the status.'
 ).use(new OpenAITextPlugin({
-  model: 'gpt-4o',
+  model: 'gpt-4-turbo',
   apiKey: process.env.OPENAI_API_KEY,
   temperature: 0,
   stream: stream
