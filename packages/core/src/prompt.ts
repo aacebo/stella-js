@@ -47,6 +47,16 @@ export class Prompt {
     return this;
   }
 
+  async call<P = any, R = any>(name: string, params: P) {
+    const fn = this._functions[name];
+
+    if (!fn) {
+      throw new Error(`function ${name} not found`);
+    }
+
+    return await fn.handler(params as any) as R;
+  }
+
   function(name: string, description: string, handler: FunctionHandler): Prompt;
   function(name: string, description: string, parameters: Schema, handler: FunctionHandler): Prompt;
   function(...args: any[]) {
