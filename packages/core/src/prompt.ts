@@ -11,13 +11,13 @@ export class Prompt {
     return [...(this._parent?.path || []), this.name];
   }
 
-  private readonly _template: Handlebars.TemplateDelegate;
   private readonly _history: Message[];
   private readonly _prompts: { [key: string]: Prompt } = { };
   private readonly _plugins: { [name: string]: Plugin } = { };
   private readonly _functions: { [key: string]: Function } = { };
   private readonly _log: Logger;
   private readonly _handlebars: typeof Handlebars;
+  private readonly _template: Handlebars.TemplateDelegate;
   private _parent?: Prompt;
 
   constructor(name: string, src?: string) {
