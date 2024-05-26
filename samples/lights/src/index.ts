@@ -20,8 +20,8 @@ let prompt = new Prompt(
 ).use(new OpenAITextPlugin({
   model: 'gpt-4-turbo',
   apiKey: process.env.OPENAI_API_KEY,
-  temperature: 0,
-  stream: stream
+  temperature: 0.5,
+  stream
 })).use(new OpenAIAudioPlugin({
   model: 'tts-1',
   apiKey: process.env.OPENAI_API_KEY
@@ -31,11 +31,15 @@ let prompt = new Prompt(
 })).function(
   'lights_on',
   'turns the lights on',
-  () => status = true
+  () => {
+    status = true;
+  }
 ).function(
   'lights_off',
   'turns the lights off',
-  () => status = false
+  () => {
+    status = false;
+  }
 ).function(
   'get_light_status',
   'returns true if the lights are on, otherwise false',
@@ -46,13 +50,13 @@ prompt = prompt.function(
   'get_audio_text',
   'returns transcribed audio text',
   async () => {
-    const data = await prompt.text_to_audio('openai:audio:tts-1', {
+    const data = await prompt.text_to_audio({
       text: status === false ? 'turn the lights on' : 'turn the lights off',
       type: 'mp3',
       voice: 'alloy'
     });
 
-    return prompt.audio_to_text('openai:audio:whisper-1', {
+    return prompt.audio_to_text({
       type: 'mp3',
       data: data,
       prompt: 'convert this audio to text'

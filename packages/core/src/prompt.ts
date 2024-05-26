@@ -17,21 +17,13 @@ export class Prompt {
   private readonly _plugins: { [name: string]: Plugin } = { };
   private readonly _functions: { [key: string]: Function } = { };
   private readonly _log: Logger;
+  private readonly _handlebars: typeof Handlebars;
   private _parent?: Prompt;
-
-  private get _context() {
-    const v: { [key: string]: any } = this._parent?._context || { };
-
-    for (const [key, fn] of Object.entries(this._functions)) {
-      v[key] = fn;
-    }
-
-    return v;
-  }
 
   constructor(name: string, src?: string) {
     this.name = name;
-    this._template = Handlebars.compile(src, { strict: true });
+    this._handlebars = Handlebars.create();
+    this._template = this._handlebars.compile(src, { strict: true });
     this._log = new Logger(`stella:prompt:${this.path.join(':')}`);
     this._history = [];
   }
@@ -68,6 +60,7 @@ export class Prompt {
       }
     };
 
+    this._handlebars.registerHelper(name, handler);
     return this;
   }
 
@@ -107,14 +100,14 @@ export class Prompt {
 
       this._history.push({
         role: 'system',
-        content: plugin.tags.includes('functions') ? this._template(this._context) : `
+        content: plugin.tags.includes('functions') ? this._template({ }) : `
         Do not respond using markdown.
         Respond only with the handlebars template language:
         - https://handlebarsjs.com/guide/expressions.html#basic-usage
 
         You can call the following functions:
         ${fns}
-        ${this._template(this._context)}
+        ${this._template({ })}
         `
       });
     }
@@ -130,17 +123,16 @@ export class Prompt {
       let content = buffer;
 
       try {
-        const template = Handlebars.compile(content, { strict: true });
+        const template = this._handlebars.compile(content, { strict: true });
         buffer = '';
 
-        on_chunk(template(this._context));
+        on_chunk(template({ }));
       } catch (err) {
         return;
       }
     });
 
-    const template = Handlebars.compile(message.content || '');
-    return template(this._context);
+    return this._handlebars.compile(message.content || '')({ });
   }
 
   async audio_to_text(params: AudioToTextParams): Promise<string>;
@@ -174,12 +166,11 @@ export class Prompt {
 
       You can call the following functions:
       ${fns}
-      ${this._template(this._context)}
+      ${this._template({ })}
       `
     });
 
-    const template = Handlebars.compile(res, { strict: true });
-    return template(this._context);
+    return this._handlebars.compile(res, { strict: true })({ });
   }
 
   async text_to_audio(params: TextToAudioParams): Promise<Buffer>;

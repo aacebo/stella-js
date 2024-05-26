@@ -15,11 +15,12 @@
     "clean": "npx rimraf dist",
     "build": "npm run clean && tsc -p .",
     "start": "DEBUG=stella:*,-*:info node -r dotenv/config .",
-    "debug": "DEBUG=stella:*,-*:info NODE_OPTIONS=\"-r dotenv/config --no-deprecation\" npx ts-node --skipProject src/index.ts"
+    "debug": "DEBUG=stella:*,-*:info NODE_OPTIONS=\"-r dotenv/config --no-deprecation\" npx ts-node src/index.ts"
   },
   "dependencies": {
     "@stella/core": "file:../../packages/core",
     "@stella/openai": "file:../../packages/openai",
+    "@stella/meta": "file:../../packages/meta",
     "dotenv": "^16.4.5"
   },
   "devDependencies": {
