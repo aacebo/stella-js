@@ -1,4 +1,4 @@
-export * from './prompt';
+export * from './prompts';
 export * from './plugins';
 export * from './types';
 export * from './logger';

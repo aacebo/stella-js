@@ -1,6 +1,6 @@
 import readline from 'node:readline';
 
-import { Prompt } from '@stella/core';
+import { AudioPrompt, TextPrompt } from '@stella/core';
 import { OpenAITextPlugin, OpenAIAudioPlugin } from '@stella/openai';
 
 if (!process.env.OPENAI_API_KEY) {
@@ -14,21 +14,39 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-let prompt = new Prompt(
-  'root',
-  'you are an expert on turning the lights on or off and telling me the status.'
-).use(new OpenAITextPlugin({
-  model: 'gpt-4-turbo',
-  apiKey: process.env.OPENAI_API_KEY,
-  temperature: 0.5,
-  stream
-})).use(new OpenAIAudioPlugin({
-  model: 'tts-1',
-  apiKey: process.env.OPENAI_API_KEY
-})).use(new OpenAIAudioPlugin({
-  model: 'whisper-1',
-  apiKey: process.env.OPENAI_API_KEY
-})).function(
+const tts = new AudioPrompt(
+  'tts-1',
+  {
+    plugin: new OpenAIAudioPlugin({
+      model: 'tts-1',
+      apiKey: process.env.OPENAI_API_KEY
+    })
+  }
+);
+
+const whisper = new AudioPrompt(
+  'whisper-1',
+  {
+    src: 'convert this audio to text',
+    plugin: new OpenAIAudioPlugin({
+      model: 'whisper-1',
+      apiKey: process.env.OPENAI_API_KEY
+    })
+  }
+);
+
+const gpt4 = new TextPrompt(
+  'gpt-4-turbo',
+  {
+    src: 'you are an expert on turning the lights on or off and telling me the status.',
+    plugin: new OpenAITextPlugin({
+      model: 'gpt-4-turbo',
+      apiKey: process.env.OPENAI_API_KEY,
+      temperature: 0.5,
+      stream
+    })
+  }
+).function(
   'lights_on',
   'turns the lights on',
   () => {
@@ -44,19 +62,17 @@ let prompt = new Prompt(
   'get_light_status',
   'returns true if the lights are on, otherwise false',
   () => status
-);
-
-prompt = prompt.function(
+).function(
   'get_audio_text',
   'returns transcribed audio text',
   async () => {
-    const data = await prompt.text_to_audio({
+    const data = await tts.text_to_audio({
       text: status === false ? 'turn the lights on' : 'turn the lights off',
       type: 'mp3',
       voice: 'alloy'
     });
 
-    return prompt.audio_to_text({
+    return whisper.audio_to_text({
       type: 'mp3',
       data: data,
       prompt: 'convert this audio to text'
@@ -70,7 +86,7 @@ prompt = prompt.function(
   for await (const line of rl) {
     if (line === 'exit') return process.exit(0);
 
-    const res = await prompt.text(line, chunk => {
+    const res = await gpt4.text(line, chunk => {
       process.stdout.write(chunk);
     });
 
