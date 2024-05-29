@@ -44,8 +44,6 @@ export class LlamaPlugin implements TextPlugin {
         ).join('\n')
       });
 
-      console.log(res.data);
-
       return {
         role: 'model',
         content: res.data.map(v => v.generated_text).join('\n')

@@ -21,6 +21,7 @@
     "@stella/core": "file:../../packages/core",
     "@stella/openai": "file:../../packages/openai",
     "@stella/meta": "file:../../packages/meta",
+    "@stella/google": "file:../../packages/google",
     "dotenv": "^16.4.5"
   },
   "devDependencies": {

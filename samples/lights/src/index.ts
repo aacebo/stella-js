@@ -1,7 +1,8 @@
 import readline from 'node:readline';
 
 import { AudioPrompt, TextPrompt } from '@stella/core';
-import { OpenAITextPlugin, OpenAIAudioPlugin } from '@stella/openai';
+import { OpenAIAudioPlugin } from '@stella/openai';
+import { GoogleTextPlugin } from '@stella/google';
 
 if (!process.env.OPENAI_API_KEY) {
   throw new Error('`OPENAI_API_KEY` is required');
@@ -36,13 +37,12 @@ const whisper = new AudioPrompt(
 );
 
 const gpt4 = new TextPrompt(
-  'gpt-4-turbo',
+  'gemini-1.5-flash-latest',
   {
     src: 'you are an expert on turning the lights on or off and telling me the status.',
-    plugin: new OpenAITextPlugin({
-      model: 'gpt-4-turbo',
-      apiKey: process.env.OPENAI_API_KEY,
-      temperature: 0.5,
+    plugin: new GoogleTextPlugin({
+      model: 'gemini-1.5-flash-latest',
+      api_key: process.env.GEMINI_API_KEY!,
       stream
     })
   }

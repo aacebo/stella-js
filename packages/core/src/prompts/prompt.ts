@@ -23,7 +23,9 @@ export class Prompt<T extends keyof PluginTypes> {
     this.plugin = options.plugin;
     this.log = new Logger(`stella:prompt:${name}`);
     this._handlebars = Handlebars.create();
-    this._template = this._handlebars.compile(options.src || '', { strict: true });
+    this._handlebars.registerHelper('eq', (a, b) => a === b);
+    this._handlebars.registerHelper('not', v => !!v);
+    this._template = this._handlebars.compile(options.src || '');
   }
 
   function(name: string, description: string, handler: FunctionHandler): this;
@@ -67,10 +69,13 @@ export class Prompt<T extends keyof PluginTypes> {
     // add handlebars to prompt when native functions not available
     if (!this.plugin.tags.includes('functions')) {
       parts.push(`Do not respond using markdown.
-      Respond only with the handlebars template language:
-      - https://handlebarsjs.com/guide/expressions.html#basic-usage
+      Respond only with the handlebars template language, for example:
+      - Variables: "the sheep is {{color}}"
+        - https://handlebarsjs.com/guide/expressions.html#basic-usage
+      - Functions: "hello {{get_username}}"
+        - https://handlebarsjs.com/guide/expressions.html#helpers
 
-      You can call the following functions:
+      You can call the following functions, do not call functions/helpers outside this list:
       `);
 
       parts.push(Object.values(this._functions).map(fn =>

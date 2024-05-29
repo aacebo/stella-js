@@ -12,7 +12,7 @@ export class AudioPrompt extends Prompt<'audio'> {
       prompt: params.prompt || this.render()
     });
 
-    return this._handlebars.compile(res, { strict: true })({ });
+    return this._handlebars.compile(res)({ });
   }
 
   async text_to_audio(params: TextToAudioParams) {

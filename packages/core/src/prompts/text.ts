@@ -29,6 +29,8 @@ export class TextPrompt extends Prompt<'text'> {
   }
 
   async text(text: string, on_chunk?: (chunk: string) => void) {
+    text = text.trim();
+
     if (this.history.length === 0) {
       this.history.push({
         role: 'system',
@@ -57,9 +59,8 @@ export class TextPrompt extends Prompt<'text'> {
 
       try {
         const template = this._handlebars.compile(content, { strict: true });
-        buffer = '';
-
         on_chunk(template({ }));
+        buffer = '';
       } catch (err) {
         return;
       }
@@ -74,9 +75,6 @@ export class TextPrompt extends Prompt<'text'> {
       });
     }
 
-    return this._handlebars.compile(
-      message.content || '',
-      { strict: true }
-    )({ });
+    return this._handlebars.compile(message.content || '', { strict: true })({ });
   }
 }

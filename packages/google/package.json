@@ -1,0 +1,27 @@
+{
+  "name": "@stella/google",
+  "version": "0.0.0",
+  "description": "",
+  "author": "",
+  "license": "ISC",
+  "main": "dist/index",
+  "types": "dist/index",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "npx rimraf dist",
+    "build": "npm run clean && tsc -p ."
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.11.4",
+    "@stella/core": "file:../core"
+  },
+  "devDependencies": {
+    "@types/node": "^20.5.1",
+    "rimraf": "^5.0.7",
+    "typescript": "^5.4.5"
+  }
+}

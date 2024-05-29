@@ -96,7 +96,7 @@ export class OpenAITextPlugin implements TextPlugin {
         return res;
       }
 
-      let message: Message = {
+      const message: Message = {
         role: 'model',
         content: ''
       };
