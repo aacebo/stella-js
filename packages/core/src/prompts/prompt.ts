@@ -44,7 +44,7 @@ export class Prompt<T extends keyof PluginTypes> {
           return await handler(args);
         } catch (err) {
           this.log.error(err);
-          return null;
+          throw err;
         }
       }
     };
