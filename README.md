@@ -2,6 +2,12 @@
 
 A prompt engine used to interact with LLM's.
 
+## Concepts
+
+- [Prompt](./docs/00.PROMPT.md)
+- [Plugin](./docs/01.PLUGIN.md)
+- [Functions](./docs/02.FUNCTIONS.md)
+
 ## Performance
 
 By using handlebars as a format for communication with the LLM, function responses don't need
@@ -27,16 +33,3 @@ native or template based function calling.
 
 The package was built with multi-model and multi-modal in mind. You can either orchestrate many single purpose
 models together or use one or more multi-modal models like gpt-4o.
-
-## Concepts
-
-By keeping the code simple and minimizing the number of concepts as much as possible, we deminish the learning curve
-significantly. This implementation has three high level concepts:
-
-### Prompts
-
-An object used to interact with an LLM. Different types of prompts can do different things, for example a `text` prompt can use `functions`.
-
-### Plugins
-
-A client used to interface with the LLM. Clients implement different interfaces and are tagged with features they support. A plugin can support multiple media types and features, or just one.
