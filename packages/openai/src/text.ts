@@ -24,20 +24,6 @@ export class OpenAITextPlugin implements TextPlugin {
 
   async text(params: TextParams, on_chunk?: (chunk: Message) => void): Promise<Message> {
     const messages = params.history || [];
-    const tools: OpenAI.ChatCompletionTool[] = [];
-
-    for (const [_, fn] of Object.entries(params.functions || { })) {
-      if (!fn) continue;
-
-      tools.push({
-        type: 'function',
-        function: {
-          name: fn.name,
-          description: fn.description,
-          parameters: fn.parameters
-        }
-      });
-    }
 
     if (params.text) {
       messages.push({
@@ -48,10 +34,17 @@ export class OpenAITextPlugin implements TextPlugin {
 
     try {
       const completion = await this._openai.chat.completions.create({
-        tools,
         model: this.options.model,
         temperature: this.options.temperature,
         stream: this.options.stream,
+        tools: Object.values(params.functions || { }).map(fn => ({
+          type: 'function',
+          function: {
+            name: fn.name,
+            description: fn.description,
+            parameters: fn.parameters
+          }
+        })),
         messages: messages.map(message => {
           if (message.role === 'model') {
             return {

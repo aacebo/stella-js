@@ -1,5 +1,5 @@
 import { TextPlugin, TextParams, Message, Logger, PluginTag } from '@stella/core';
-import { GoogleGenerativeAI, GenerativeModel, ModelParams, TextPart } from '@google/generative-ai';
+import { GoogleGenerativeAI, GenerativeModel, ModelParams, TextPart, GenerateContentRequest } from '@google/generative-ai';
 
 export interface GoogleTextPluginOptions extends ModelParams {
   readonly name?: string;
@@ -36,28 +36,21 @@ export class GoogleTextPlugin implements TextPlugin {
         content: ''
       };
 
-      if (!this.options.stream) {
-        const res = await this._client.generateContent({
-          systemInstruction: messages.find(m => m.role === 'system')?.content,
-          contents: messages.filter(m => m.role !== 'system').map(m => {
-            return {
-              role: m.role,
-              parts: [{ text: m.content } as TextPart]
-            };
-          })
-        });
+      const req: GenerateContentRequest = {
+        systemInstruction: messages.find(m => m.role === 'system')?.content,
+        contents: messages.filter(m => m.role !== 'system').map(m => {
+          return {
+            role: m.role,
+            parts: [{ text: m.content } as TextPart]
+          };
+        })
+      };
 
+      if (!this.options.stream) {
+        const res = await this._client.generateContent(req);
         message.content = res.response.text();
       } else {
-        const res = await this._client.generateContentStream({
-          systemInstruction: messages.find(m => m.role === 'system')?.content,
-          contents: messages.filter(m => m.role !== 'system').map(m => {
-            return {
-              role: m.role,
-              parts: [{ text: m.content } as TextPart]
-            };
-          })
-        });
+        const res = await this._client.generateContentStream(req);
 
         for await (const chunk of res.stream) {
           const text = chunk.text();

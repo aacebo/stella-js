@@ -5,7 +5,7 @@ import { PluginBase } from './base';
 export interface TextParams {
   readonly text?: string;
   readonly history?: Message[];
-  readonly functions?: { [key: string]: Function | undefined };
+  readonly functions?: { [key: string]: Function };
 }
 
 export interface TextPlugin extends PluginBase {
