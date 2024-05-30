@@ -15,7 +15,7 @@ export class GoogleTextPlugin implements TextPlugin {
   private readonly _log: Logger;
 
   constructor(readonly options: GoogleTextPluginOptions) {
-    this.name = options.name || `meta:google:${options.model}`;
+    this.name = options.name || `google:text:${options.model}`;
     this._log = new Logger(`stella:${this.name}`);
     this._client = new GoogleGenerativeAI(options.api_key).getGenerativeModel(options);
   }

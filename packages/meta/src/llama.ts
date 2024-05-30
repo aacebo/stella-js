@@ -3,6 +3,7 @@ import axios, { AxiosInstance } from 'axios';
 
 export interface LlamaPluginOptions {
   readonly name?: string;
+  readonly model: string;
   readonly endpoint: string;
   readonly api_key: string;
   readonly stream?: boolean;
@@ -17,11 +18,14 @@ export class LlamaPlugin implements TextPlugin {
   private readonly _log: Logger;
 
   constructor(readonly options: LlamaPluginOptions) {
-    this.name = options.name || 'meta:llama';
+    this.name = options.name || `meta:text:${options.model}`;
     this._log = new Logger(`stella:${this.name}`);
     this._axios = axios.create({
       baseURL: options.endpoint,
-      headers: { Authorization: `Bearer ${options.api_key}` }
+      headers: {
+        Authorization: `Bearer ${options.api_key}`,
+        'Content-Type': 'application/json'
+      }
     });
   }
 
@@ -36,18 +40,29 @@ export class LlamaPlugin implements TextPlugin {
     }
 
     try {
-      const res = await this._axios.post<Array<{ generated_text: string }>>('/', {
-        inputs: messages.map(m =>
-          m.role === 'user'
-            ? `[INST]${m.content}[/INST]`
-            : m.content
-        ).join('\n')
+      const res = await this._axios.post<{
+        readonly choices: Array<{
+          readonly index: number;
+          readonly message: {
+            readonly role: 'assistant';
+            readonly content: string;
+          };
+        }>;
+      }>('', {
+        model: this.options.model,
+        messages: messages.map(m => ({
+          role: m.role === 'model' ? 'assistant' : m.role,
+          content: m.content
+        }))
       });
 
-      return {
+      const message: Message = {
         role: 'model',
-        content: res.data.map(v => v.generated_text).join('\n')
+        content: res.data.choices[0].message.content
       };
+
+      messages.push(message);
+      return message;
     } catch (err) {
       this._log.error(err);
       throw err;
