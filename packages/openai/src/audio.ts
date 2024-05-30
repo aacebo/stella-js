@@ -1,9 +1,16 @@
 import { AudioPlugin, TextToAudioParams, Logger, PluginTag, AudioToTextParams } from '@stella/core';
-import OpenAI, { ClientOptions, toFile } from 'openai';
+import OpenAI, { toFile } from 'openai';
 
-export interface OpenAIAudioPluginOptions extends ClientOptions {
+export interface OpenAIAudioPluginOptions {
   readonly name?: string;
   readonly model: string;
+  readonly api_key?: string;
+  readonly base_url?: string;
+  readonly organization?: string;
+  readonly project?: string;
+  readonly headers?: { [key: string]: string; };
+  readonly fetch?: (url: RequestInfo, init?: globalThis.RequestInit) => Promise<Response>;
+  readonly timeout?: number;
 }
 
 export class OpenAIAudioPlugin implements AudioPlugin {
@@ -15,8 +22,16 @@ export class OpenAIAudioPlugin implements AudioPlugin {
 
   constructor(readonly options: OpenAIAudioPluginOptions) {
     this.name = options.name || `openai:audio:${options.model}`;
-    this._openai = new OpenAI(options);
     this._log = new Logger(`stella:${this.name}`);
+    this._openai = new OpenAI({
+      apiKey: options.api_key,
+      baseURL: options.base_url,
+      organization: options.organization,
+      project: options.project,
+      defaultHeaders: options.headers,
+      fetch: options.fetch,
+      timeout: options.timeout
+    });
   }
 
   async audio_to_text(params: AudioToTextParams) {

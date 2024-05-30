@@ -18,7 +18,7 @@ const rl = readline.createInterface({
 const tts = new AudioPrompt({
   plugin: new OpenAIAudioPlugin({
     model: 'tts-1',
-    apiKey: process.env.OPENAI_API_KEY
+    api_key: process.env.OPENAI_API_KEY
   })
 });
 
@@ -26,7 +26,7 @@ const whisper = new AudioPrompt({
   src: 'convert this audio to text',
   plugin: new OpenAIAudioPlugin({
     model: 'whisper-1',
-    apiKey: process.env.OPENAI_API_KEY
+    api_key: process.env.OPENAI_API_KEY
   })
 });
 
@@ -34,7 +34,7 @@ const gpt4 = new TextPrompt({
   src: 'you are an expert on turning the lights on or off and telling me the status.',
   plugin: new OpenAITextPlugin({
     model: 'gpt-4-turbo',
-    apiKey: process.env.OPENAI_API_KEY,
+    api_key: process.env.OPENAI_API_KEY,
     temperature: 0,
     stream
   })

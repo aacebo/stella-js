@@ -1,10 +1,17 @@
 import { TextPlugin, TextParams, Message, Logger, PluginTag } from '@stella/core';
-import OpenAI, { ClientOptions } from 'openai';
+import OpenAI from 'openai';
 import { Stream } from 'openai/streaming';
 
-export interface OpenAITextPluginOptions extends ClientOptions {
+export interface OpenAITextPluginOptions {
   readonly name?: string;
   readonly model: string;
+  readonly api_key?: string;
+  readonly base_url?: string;
+  readonly organization?: string;
+  readonly project?: string;
+  readonly headers?: { [key: string]: string; };
+  readonly fetch?: (url: RequestInfo, init?: globalThis.RequestInit) => Promise<Response>;
+  readonly timeout?: number;
   readonly stream?: boolean;
   readonly temperature?: number;
 }
@@ -18,8 +25,16 @@ export class OpenAITextPlugin implements TextPlugin {
 
   constructor(readonly options: OpenAITextPluginOptions) {
     this.name = options.name || `openai:text:${options.model}`;
-    this._openai = new OpenAI(options);
     this._log = new Logger(`stella:${this.name}`);
+    this._openai = new OpenAI({
+      apiKey: options.api_key,
+      baseURL: options.base_url,
+      organization: options.organization,
+      project: options.project,
+      defaultHeaders: options.headers,
+      fetch: options.fetch,
+      timeout: options.timeout
+    });
   }
 
   async text(params: TextParams, on_chunk?: (chunk: Message) => void): Promise<Message> {
