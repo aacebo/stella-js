@@ -5,6 +5,7 @@ import { PluginTypes } from '../plugins';
 import { Function, FunctionHandler, Schema } from '../types';
 
 export interface PromptOptions<T extends keyof PluginTypes> {
+  readonly name?: string;
   readonly plugin: PluginTypes[T];
   readonly src?: string;
 }
@@ -18,10 +19,10 @@ export class Prompt<T extends keyof PluginTypes> {
   protected readonly _handlebars: typeof Handlebars;
   protected readonly _template: Handlebars.TemplateDelegate;
 
-  constructor(name: string, options: PromptOptions<T>) {
-    this.name = name;
+  constructor(options: PromptOptions<T>) {
+    this.name = options.name || options.plugin.name;
     this.plugin = options.plugin;
-    this.log = new Logger(`stella:prompt:${name}`);
+    this.log = new Logger(`stella:prompt:${this.name}`);
     this._handlebars = Handlebars.create();
     this._handlebars.registerHelper('eq', (a, b) => a === b);
     this._handlebars.registerHelper('not', v => !!v);
@@ -57,7 +58,7 @@ export class Prompt<T extends keyof PluginTypes> {
     const fn = this._functions[name];
 
     if (!fn) {
-      throw new Error(`function ${name} not found`);
+      throw new Error(`function "${name}" not found`);
     }
 
     return await fn.handler(args || { }) as R;

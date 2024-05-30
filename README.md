@@ -4,8 +4,8 @@ A prompt engine used to interact with LLM's.
 
 ## Concepts
 
-- [Prompt](./docs/00.PROMPT.md)
-- [Plugin](./docs/01.PLUGIN.md)
+- [Prompts](./docs/00.PROMPTS.md)
+- [Plugins](./docs/01.PLUGINS.md)
 - [Functions](./docs/02.FUNCTIONS.md)
 
 ## Performance
