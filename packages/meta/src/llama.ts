@@ -50,6 +50,7 @@ export class LlamaPlugin implements TextPlugin {
         }>;
       }>('', {
         model: this.options.model,
+        temperature: this.options.temperature,
         messages: messages.map(m => ({
           role: m.role === 'model' ? 'assistant' : m.role,
           content: m.content
