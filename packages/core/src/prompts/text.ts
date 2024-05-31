@@ -58,7 +58,7 @@ export class TextPrompt extends Prompt<'text'> {
       let content = buffer;
 
       try {
-        on_chunk(this._template.render({
+        on_chunk(this.template.render({
           src: content,
           functions: this.function_handlers
         }));
@@ -78,7 +78,7 @@ export class TextPrompt extends Prompt<'text'> {
       });
     }
 
-    return this._template.render({
+    return this.template.render({
       src: message.content || '',
       functions: this.function_handlers
     });

@@ -12,7 +12,7 @@ export class AudioPrompt extends Prompt<'audio'> {
       prompt: params.prompt || this.render()
     });
 
-    return this._template.render({
+    return this.template.render({
       src: res,
       functions: this.function_handlers
     });

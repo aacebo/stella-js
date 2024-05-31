@@ -13,8 +13,8 @@ export class Prompt<T extends keyof PluginTypes> {
   readonly name: string;
   readonly log: Logger;
   readonly plugin: PluginTypes[T];
+  readonly template: Template;
 
-  protected _template: Template;
   protected readonly _functions: { [key: string]: Function } = { };
 
   protected get function_handlers() {
@@ -28,13 +28,13 @@ export class Prompt<T extends keyof PluginTypes> {
     this.name = options.name || options.plugin.name;
     this.plugin = options.plugin;
     this.log = new Logger(`stella:prompt:${this.name}`);
-    this._template = new StringTemplate();
+    this.template = new StringTemplate();
 
     if (options.instructions) {
       if (typeof options.instructions === 'string') {
-        this._template = new StringTemplate(options.instructions);
+        this.template = new StringTemplate(options.instructions);
       } else {
-        this._template = options.instructions;
+        this.template = options.instructions;
       }
     }
   }
@@ -69,12 +69,12 @@ export class Prompt<T extends keyof PluginTypes> {
   render() {
     const parts: string[] = [];
 
-    parts.push(this._template.render({
+    parts.push(this.template.render({
       functions: this.function_handlers
     }));
 
     // add handlebars to prompt when native functions not available
-    if (!this.plugin.tags.includes('functions') && this._template.tags.includes('functions')) {
+    if (!this.plugin.tags.includes('functions') && this.template.tags.includes('functions')) {
       parts.push('You can call the following functions, do not call functions/helpers outside this list:');
       parts.push(Object.values(this._functions).map(fn =>
         `- ${fn.name}:\n\t- description: ${fn.description}\n\t- parameters: ${JSON.stringify(fn.parameters)}\n`
