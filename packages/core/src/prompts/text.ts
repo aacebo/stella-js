@@ -55,11 +55,10 @@ export class TextPrompt extends Prompt<'text'> {
     }, chunk => {
       if (!chunk.content || !on_chunk) return;
       buffer += chunk.content;
-      let content = buffer;
 
       try {
         on_chunk(this.template.render({
-          src: content,
+          src: buffer,
           functions: this.function_handlers
         }));
 
