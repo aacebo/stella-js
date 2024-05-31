@@ -1,6 +1,4 @@
-import { Function, Message } from '../types';
-
-import { PluginBase } from './base';
+import { Function, Message, Plugin } from '../types';
 
 export interface TextParams {
   readonly text?: string;
@@ -8,7 +6,7 @@ export interface TextParams {
   readonly functions?: { [key: string]: Function };
 }
 
-export interface TextPlugin extends PluginBase {
+export interface TextPlugin extends Plugin {
   text(
     params: TextParams,
     on_chunk?: (chunk: Message) => void

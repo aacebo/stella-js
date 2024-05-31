@@ -1,13 +1,12 @@
-import Handlebars from 'handlebars';
-
 import { Logger } from '../logger';
 import { PluginTypes } from '../plugins';
-import { Function, FunctionHandler, Schema } from '../types';
+import { StringTemplate } from '../templates';
+import { Function, FunctionHandler, Schema, Template } from '../types';
 
 export interface PromptOptions<T extends keyof PluginTypes> {
   readonly name?: string;
   readonly plugin: PluginTypes[T];
-  readonly src?: string;
+  readonly instructions?: string | Template
 }
 
 export class Prompt<T extends keyof PluginTypes> {
@@ -15,18 +14,29 @@ export class Prompt<T extends keyof PluginTypes> {
   readonly log: Logger;
   readonly plugin: PluginTypes[T];
 
+  protected _template: Template;
   protected readonly _functions: { [key: string]: Function } = { };
-  protected readonly _handlebars: typeof Handlebars;
-  protected readonly _template: Handlebars.TemplateDelegate;
+
+  protected get function_handlers() {
+    return Object.keys(this._functions).reduce((prev, key) => {
+      prev[key] = this._functions[key].handler;
+      return prev;
+    }, { } as { [key: string]: FunctionHandler });
+  }
 
   constructor(options: PromptOptions<T>) {
     this.name = options.name || options.plugin.name;
     this.plugin = options.plugin;
     this.log = new Logger(`stella:prompt:${this.name}`);
-    this._handlebars = Handlebars.create();
-    this._handlebars.registerHelper('eq', (a, b) => a === b);
-    this._handlebars.registerHelper('not', v => !!v);
-    this._template = this._handlebars.compile(options.src || '');
+    this._template = new StringTemplate();
+
+    if (options.instructions) {
+      if (typeof options.instructions === 'string') {
+        this._template = new StringTemplate(options.instructions);
+      } else {
+        this._template = options.instructions;
+      }
+    }
   }
 
   function(name: string, description: string, handler: FunctionHandler): this;
@@ -50,7 +60,6 @@ export class Prompt<T extends keyof PluginTypes> {
       }
     };
 
-    this._handlebars.registerHelper(name, handler);
     return this;
   }
 
@@ -65,20 +74,15 @@ export class Prompt<T extends keyof PluginTypes> {
   }
 
   render() {
-    const parts = [this._template({ })];
+    const parts: string[] = [];
+
+    parts.push(this._template.render({
+      functions: this.function_handlers
+    }));
 
     // add handlebars to prompt when native functions not available
-    if (!this.plugin.tags.includes('functions')) {
-      parts.push(`Do not respond using markdown.
-      Respond only with the handlebars template language, for example:
-      - Variables: "the sheep is {{color}}"
-        - https://handlebarsjs.com/guide/expressions.html#basic-usage
-      - Functions: "hello {{get_username}}"
-        - https://handlebarsjs.com/guide/expressions.html#helpers
-
-      You can call the following functions, do not call functions/helpers outside this list:
-      `);
-
+    if (!this.plugin.tags.includes('functions') && this._template.tags.includes('functions')) {
+      parts.push('You can call the following functions, do not call functions/helpers outside this list:');
       parts.push(Object.values(this._functions).map(fn =>
         `- ${fn.name}:\n\t- description: ${fn.description}\n\t- parameters: ${JSON.stringify(fn.parameters)}\n`
       ).join('\n'));

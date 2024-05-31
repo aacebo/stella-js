@@ -58,8 +58,11 @@ export class TextPrompt extends Prompt<'text'> {
       let content = buffer;
 
       try {
-        const template = this._handlebars.compile(content, { strict: true });
-        on_chunk(template({ }));
+        on_chunk(this._template.render({
+          src: content,
+          functions: this.function_handlers
+        }));
+
         buffer = '';
       } catch (err) {
         return;
@@ -75,6 +78,9 @@ export class TextPrompt extends Prompt<'text'> {
       });
     }
 
-    return this._handlebars.compile(message.content || '', { strict: true })({ });
+    return this._template.render({
+      src: message.content || '',
+      functions: this.function_handlers
+    });
   }
 }

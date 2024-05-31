@@ -5,7 +5,7 @@ export type PluginTag =
   'image' |
   'video';
 
-export interface PluginBase {
+export interface Plugin {
   readonly name: string;
   readonly tags: PluginTag[];
 }

@@ -1,6 +1,6 @@
 import readline from 'node:readline';
 
-import { AudioPrompt, TextPrompt } from '@stella/core';
+import { AudioPrompt, HandlebarsTemplate, TextPrompt } from '@stella/core';
 import { OpenAITextPlugin, OpenAIAudioPlugin } from '@stella/openai';
 // import { GoogleTextPlugin } from '@stella/google';
 
@@ -23,7 +23,7 @@ const tts = new AudioPrompt({
 });
 
 const whisper = new AudioPrompt({
-  src: 'convert this audio to text',
+  instructions: 'convert this audio to text',
   plugin: new OpenAIAudioPlugin({
     model: 'whisper-1',
     api_key: process.env.OPENAI_API_KEY
@@ -31,7 +31,7 @@ const whisper = new AudioPrompt({
 });
 
 const gpt4 = new TextPrompt({
-  src: 'you are an expert on turning the lights on or off and telling me the status.',
+  instructions: new HandlebarsTemplate('you are an expert on turning the lights on or off and telling me the status.'),
   plugin: new OpenAITextPlugin({
     model: 'gpt-4-turbo',
     api_key: process.env.OPENAI_API_KEY,
@@ -77,6 +77,11 @@ const gpt4 = new TextPrompt({
 
   for await (const line of rl) {
     if (line === 'exit') return process.exit(0);
+    if (line === '/history') {
+      console.log(gpt4.history);
+      process.stdout.write('$: ');
+      continue;
+    }
 
     const res = await gpt4.text(line, chunk => {
       process.stdout.write(chunk);

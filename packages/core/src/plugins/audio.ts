@@ -1,4 +1,4 @@
-import { PluginBase } from './base';
+import { Plugin } from '../types';
 
 export interface TextToAudioParams {
   readonly type: string;
@@ -13,7 +13,7 @@ export interface AudioToTextParams {
   readonly lang?: string;
 }
 
-export interface AudioPlugin extends PluginBase {
+export interface AudioPlugin extends Plugin {
   text_to_audio?(params: TextToAudioParams): Promise<Buffer>;
   audio_to_text?(params: AudioToTextParams): Promise<string>;
 }
