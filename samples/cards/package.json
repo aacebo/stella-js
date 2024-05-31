@@ -1,0 +1,32 @@
+{
+  "name": "@stella/cards",
+  "version": "0.0.0",
+  "description": "",
+  "author": "",
+  "license": "ISC",
+  "main": "dist/index",
+  "types": "dist/index",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "npx rimraf dist",
+    "build": "npm run clean && tsc -p .",
+    "start": "npx cross-env DEBUG=stella:*,-*:info node -r dotenv/config .",
+    "debug": "npx cross-env DEBUG=stella:*,-*:info NODE_OPTIONS=\"-r dotenv/config --no-deprecation\" npx ts-node src/index.ts"
+  },
+  "dependencies": {
+    "@stella/core": "file:../../packages/core",
+    "@stella/openai": "file:../../packages/openai",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.5.1",
+    "cross-env": "^7.0.3",
+    "rimraf": "^5.0.7",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}

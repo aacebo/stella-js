@@ -65,7 +65,7 @@ export class OpenAITextPlugin implements TextPlugin {
         model: this.options.model,
         temperature: this.options.temperature,
         stream: this.options.stream,
-        tools: Object.values(params.functions || { }).map(fn => ({
+        tools: Object.keys(params.functions || { }).length === 0 ? undefined : Object.values(params.functions || { }).map(fn => ({
           type: 'function',
           function: {
             name: fn.name,
