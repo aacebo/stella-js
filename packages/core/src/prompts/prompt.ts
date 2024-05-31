@@ -50,14 +50,7 @@ export class Prompt<T extends keyof PluginTypes> {
       name,
       description,
       parameters: parameters || { },
-      handler: async (args: { [key: string]: any }) => {
-        try {
-          return await handler(args);
-        } catch (err) {
-          this.log.error(err);
-          throw err;
-        }
-      }
+      handler
     };
 
     return this;
