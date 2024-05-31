@@ -22,10 +22,7 @@ export class GoogleTextPlugin implements TextPlugin {
 
   async text(params: TextParams, on_chunk?: (chunk: ModelMessage) => void): Promise<ModelMessage> {
     const messages = params.history || [];
-
-    if (params.message) {
-      messages.push(params.message);
-    }
+    messages.push(params.message);
 
     try {
       const message: Message = {
@@ -38,7 +35,11 @@ export class GoogleTextPlugin implements TextPlugin {
         contents: messages.filter(m => m.role !== 'system').map(m => {
           return {
             role: m.role,
-            parts: [{ text: m.content } as TextPart]
+            parts: typeof m.content === 'undefined' || typeof m.content === 'string'
+              ? [{ text: m.content }] as TextPart[]
+              : m.content.map(p => ({
+                text: p.type === 'text' ? p.text : p.image_url
+              })) as TextPart[]
           };
         })
       };
