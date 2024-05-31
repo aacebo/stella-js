@@ -21,7 +21,10 @@ const text = new TextPrompt({
 
 (async () => {
   const res = await text.text([
-    { type: 'text', text: 'generate an adaptive card from this image' },
+    {
+      type: 'text',
+      text: 'generate an adaptive card from this image'
+    },
     {
       type: 'image_url',
       image_url: 'https://media.githubusercontent.com/media/microsoft/teams-ai/main/js/samples/04.ai-apps/c.vision-cardGazer/assets/card.png'
