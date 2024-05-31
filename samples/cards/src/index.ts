@@ -37,7 +37,7 @@ const text = new TextPrompt({
     process.stdout.write(res);
   }
 
-  process.stdout.write('$: ');
+  process.stdout.write('\n$: ');
 
   for await (const line of rl) {
     if (line === 'exit') return process.exit(0);
