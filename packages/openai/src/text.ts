@@ -79,7 +79,7 @@ export class OpenAITextPlugin implements TextPlugin {
           if (message.role === 'function') {
             return {
               role: 'tool',
-              content: message.content || 'null',
+              content: message.content || '',
               tool_call_id: message.function_id
             };
           }

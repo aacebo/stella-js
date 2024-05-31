@@ -33,3 +33,8 @@ native or template based function calling.
 
 The package was built with multi-model and multi-modal in mind. You can either orchestrate many single purpose
 models together or use one or more multi-modal models like gpt-4o.
+
+## To Do
+
+- add `User-Agent`
+- better error handling

@@ -12,6 +12,10 @@ Respond only with the handlebars template language, for example:
 Do not respond using comments.
 `;
 
+export interface HandlebarsTemplateOptions {
+  readonly strict?: boolean;
+}
+
 export class HandlebarsTemplate implements Template {
   readonly tags: TemplateTag[] = ['functions'];
 
@@ -20,7 +24,7 @@ export class HandlebarsTemplate implements Template {
 
   constructor(
     readonly src?: string,
-    readonly options?: CompileOptions
+    readonly options?: HandlebarsTemplateOptions
   ) {
     this._handlebars = Handlebars.create();
     this._handlebars.registerHelper('eq', (a, b) => a === b);
@@ -35,6 +39,8 @@ export class HandlebarsTemplate implements Template {
       }) + PREFIX;
     }
 
-    return this._handlebars.compile(params.src, this.options)({ }, this.options);
+    return this._handlebars.compile(params.src, this.options)({ }, {
+      helpers: params.functions
+    });
   }
 }

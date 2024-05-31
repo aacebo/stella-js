@@ -6,6 +6,6 @@ export class StringTemplate implements Template {
   constructor(readonly src?: string) { }
 
   render(params: TemplateRenderParams = { }) {
-    return params.src || params.src || '';
+    return params.src || this.src || '';
   }
 }
