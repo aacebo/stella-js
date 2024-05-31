@@ -1,15 +1,15 @@
 import { Logger } from '../logger';
-import { Message } from '../types';
+import { ContentPart, Message, UserMessage } from '../types';
 import { Prompt } from './prompt';
 
 export interface TextPromptContext {
   readonly log: Logger;
   readonly name: string;
+  readonly message: Message;
   readonly history: Message[];
-  readonly text: string;
 }
 
-export type TextPromptMiddleware = (ctx: TextPromptContext) => Promise<string> | string;
+export type TextPromptMiddleware = (ctx: TextPromptContext) => void | Promise<void>;
 
 export class TextPrompt extends Prompt<'text'> {
   readonly history: Message[] = [ ];
@@ -28,8 +28,10 @@ export class TextPrompt extends Prompt<'text'> {
     return this;
   }
 
-  async text(text: string, on_chunk?: (chunk: string) => void) {
-    text = text.trim();
+  async text(input: string | ContentPart[], on_chunk?: (chunk: string) => void) {
+    if (typeof input === 'string') {
+      input = input.trim();
+    }
 
     if (this.history.length === 0) {
       this.history.push({
@@ -38,18 +40,23 @@ export class TextPrompt extends Prompt<'text'> {
       });
     }
 
+    const message: UserMessage = {
+      role: 'user',
+      content: input
+    };
+
     for (const middleware of this._middleware.input || []) {
-      text = await middleware({
+      await middleware({
         log: this.log,
         name: this.name,
-        history: this.history,
-        text
+        message,
+        history: this.history
       });
     }
 
     let buffer = '';
-    const message = await this.plugin.text({
-      text,
+    const res = await this.plugin.text({
+      message,
       history: this.history,
       functions: this._functions
     }, chunk => {
@@ -69,16 +76,16 @@ export class TextPrompt extends Prompt<'text'> {
     });
 
     for (const middleware of this._middleware.output || []) {
-      message.content = await middleware({
+      await middleware({
         log: this.log,
         name: this.name,
-        history: this.history,
-        text: message.content || ''
+        message: res,
+        history: this.history
       });
     }
 
     return this.template.render({
-      src: message.content || '',
+      src: res.content || '',
       functions: this.function_handlers
     });
   }

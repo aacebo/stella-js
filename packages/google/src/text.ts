@@ -1,4 +1,4 @@
-import { TextPlugin, TextParams, Message, Logger, PluginTag } from '@stella/core';
+import { TextPlugin, TextParams, Message, Logger, PluginTag, ModelMessage } from '@stella/core';
 import { GoogleGenerativeAI, GenerativeModel, ModelParams, TextPart, GenerateContentRequest } from '@google/generative-ai';
 
 export interface GoogleTextPluginOptions extends ModelParams {
@@ -20,14 +20,11 @@ export class GoogleTextPlugin implements TextPlugin {
     this._client = new GoogleGenerativeAI(options.api_key).getGenerativeModel(options);
   }
 
-  async text(params: TextParams, on_chunk?: (chunk: Message) => void): Promise<Message> {
+  async text(params: TextParams, on_chunk?: (chunk: ModelMessage) => void): Promise<ModelMessage> {
     const messages = params.history || [];
 
-    if (params.text) {
-      messages.push({
-        role: 'user',
-        content: params.text
-      });
+    if (params.message) {
+      messages.push(params.message);
     }
 
     try {
@@ -37,7 +34,7 @@ export class GoogleTextPlugin implements TextPlugin {
       };
 
       const req: GenerateContentRequest = {
-        systemInstruction: messages.find(m => m.role === 'system')?.content,
+        systemInstruction: messages.find(m => m.role === 'system')?.content as string,
         contents: messages.filter(m => m.role !== 'system').map(m => {
           return {
             role: m.role,

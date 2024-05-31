@@ -3,7 +3,7 @@ import readline from 'node:readline';
 import { AudioPrompt, TextPrompt } from '@stella/core';
 import { OpenAIAudioPlugin, OpenAITextPlugin } from '@stella/openai';
 
-const stream = false;
+const stream = true;
 let status = false;
 const rl = readline.createInterface({
   input: process.stdin,
@@ -87,6 +87,7 @@ const text = new TextPrompt({
         process.stdout.write(res);
       }
     } catch (err) {
+      text.log.error(err);
       console.log(text.history);
       process.exit(1);
     }

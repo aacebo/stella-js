@@ -1,7 +1,7 @@
-import { Function, Message, Plugin } from '../types';
+import { Function, Message, ModelMessage, Plugin } from '../types';
 
 export interface TextParams {
-  readonly text?: string;
+  readonly message: Message;
   readonly history?: Message[];
   readonly functions?: { [key: string]: Function };
 }
@@ -9,6 +9,6 @@ export interface TextParams {
 export interface TextPlugin extends Plugin {
   text(
     params: TextParams,
-    on_chunk?: (chunk: Message) => void
-  ): Promise<Message>;
+    on_chunk?: (chunk: ModelMessage) => void
+  ): Promise<ModelMessage>;
 }

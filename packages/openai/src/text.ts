@@ -1,4 +1,4 @@
-import { TextPlugin, TextParams, Message, Logger, PluginTag } from '@stella/core';
+import { TextPlugin, TextParams, Message, Logger, PluginTag, ModelMessage } from '@stella/core';
 import OpenAI from 'openai';
 import { Stream } from 'openai/streaming';
 
@@ -37,14 +37,27 @@ export class OpenAITextPlugin implements TextPlugin {
     });
   }
 
-  async text(params: TextParams, on_chunk?: (chunk: Message) => void): Promise<Message> {
+  async text(params: TextParams, on_chunk?: (chunk: ModelMessage) => void): Promise<ModelMessage> {
     const messages = params.history || [];
+    messages.push(params.message);
 
-    if (params.text) {
-      messages.push({
-        role: 'user',
-        content: params.text
-      });
+    // call functions
+    if (params.message.role === 'model' && params.message.function_calls?.length) {
+      for (const call of params.message.function_calls) {
+        const fn = (params.functions || { })[call.name];
+
+        if (!fn) {
+          throw new Error(`function ${call.name} not found`);
+        }
+
+        const output = await fn.handler(call.arguments);
+
+        messages.push( {
+          role: 'function',
+          content: JSON.stringify(output),
+          function_id: call.id
+        });
+      }
     }
 
     try {
@@ -84,6 +97,24 @@ export class OpenAITextPlugin implements TextPlugin {
             };
           }
 
+          if (message.role === 'user') {
+            return {
+              role: 'user',
+              content: typeof message.content === 'string'
+                ? message.content
+                : message.content.map(p => {
+                  if (p.type === 'image_url') {
+                    return {
+                      type: p.type,
+                      image_url: { url: p.image_url }
+                    };
+                  }
+
+                  return p;
+                })
+            };
+          }
+
           return message;
         })
       });
@@ -95,7 +126,7 @@ export class OpenAITextPlugin implements TextPlugin {
           return this._on_tool(params, messages, message, on_chunk);
         }
 
-        const res: Message = {
+        const res: ModelMessage = {
           role: 'model',
           content: message.content || undefined
         };
@@ -104,7 +135,7 @@ export class OpenAITextPlugin implements TextPlugin {
         return res;
       }
 
-      const message: Message = {
+      const message: ModelMessage = {
         role: 'model',
         content: ''
       };
@@ -144,7 +175,7 @@ export class OpenAITextPlugin implements TextPlugin {
     params: TextParams,
     messages: Message[],
     message: OpenAI.ChatCompletionMessage | OpenAI.Chat.Completions.ChatCompletionChunk.Choice.Delta,
-    on_chunk?: (chunk: Message) => void
+    on_chunk?: (chunk: ModelMessage) => void
   ) {
     const calls: OpenAI.ChatCompletionMessageToolCall[] = [];
 
@@ -177,37 +208,18 @@ export class OpenAITextPlugin implements TextPlugin {
       }
     }
 
-    messages.push({
-      role: 'model',
-      content: message.content || undefined,
-      function_calls: calls.map(call => ({
-        id: call.id,
-        name: call.function.name,
-        arguments: JSON.parse(call.function.arguments)
-      }))
-    });
-
-    for (const call of calls) {
-      const fn = (params.functions || { })[call.function.name];
-
-      if (!fn) {
-        throw new Error(`function ${call.function.name} not found`);
+    return this.text({
+      functions: params.functions,
+      history: messages,
+      message: {
+        role: 'model',
+        content: message.content || undefined,
+        function_calls: calls.map(call => ({
+          id: call.id,
+          name: call.function.name,
+          arguments: JSON.parse(call.function.arguments)
+        }))
       }
-
-      const output = await fn.handler(JSON.parse(call.function.arguments));
-
-      messages.push({
-        role: 'function',
-        content: JSON.stringify(output),
-        function_id: call.id
-      });
-
-      return this.text({
-        functions: params.functions,
-        history: messages
-      }, on_chunk);
-    }
-
-    throw new Error('no message returned');
+    }, on_chunk);
   }
 }

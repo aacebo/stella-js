@@ -8,7 +8,7 @@ export type Message =
 
 export interface UserMessage {
   role: 'user';
-  content: string;
+  content: string | ContentPart[];
 }
 
 export interface ModelMessage {
@@ -26,4 +26,18 @@ export interface FunctionMessage {
   role: 'function';
   content?: string;
   function_id: string;
+}
+
+export type ContentPart =
+  TextContentPart |
+  ImageContentPart;
+
+export interface TextContentPart {
+  type: 'text';
+  text: string;
+}
+
+export interface ImageContentPart {
+  type: 'image_url';
+  image_url: string;
 }
