@@ -1,14 +1,9 @@
 import readline from 'node:readline';
 
-import { AudioPrompt, HandlebarsTemplate, TextPrompt } from '@stella/core';
-import { OpenAITextPlugin, OpenAIAudioPlugin } from '@stella/openai';
-// import { GoogleTextPlugin } from '@stella/google';
+import { AudioPrompt, TextPrompt } from '@stella/core';
+import { OpenAIAudioPlugin, OpenAITextPlugin } from '@stella/openai';
 
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error('`OPENAI_API_KEY` is required');
-}
-
-const stream = true;
+const stream = false;
 let status = false;
 const rl = readline.createInterface({
   input: process.stdin,
@@ -30,12 +25,12 @@ const whisper = new AudioPrompt({
   })
 });
 
-const gpt4 = new TextPrompt({
-  instructions: new HandlebarsTemplate('you are an expert on turning the lights on or off and telling me the status.'),
+const text = new TextPrompt({
+  instructions: 'you are an expert on turning the lights on or off and telling me the status.',
   plugin: new OpenAITextPlugin({
-    model: 'gpt-4-turbo',
-    api_key: process.env.OPENAI_API_KEY,
-    temperature: 0,
+    model: process.env.MODEL || 'gpt-4-turbo',
+    api_key: process.env.MODEL_KEY,
+    base_url: process.env.MODEL_URL,
     stream
   })
 }).function(
@@ -78,17 +73,22 @@ const gpt4 = new TextPrompt({
   for await (const line of rl) {
     if (line === 'exit') return process.exit(0);
     if (line === '/history') {
-      console.log(gpt4.history);
+      console.log(text.history);
       process.stdout.write('$: ');
       continue;
     }
 
-    const res = await gpt4.text(line, chunk => {
-      process.stdout.write(chunk);
-    });
+    try {
+      const res = await text.text(line, chunk => {
+        process.stdout.write(chunk);
+      });
 
-    if (!stream) {
-      process.stdout.write(res);
+      if (!stream) {
+        process.stdout.write(res);
+      }
+    } catch (err) {
+      console.log(text.history);
+      process.exit(1);
     }
 
     process.stdout.write('\n$: ');

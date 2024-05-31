@@ -20,7 +20,6 @@
   "dependencies": {
     "@stella/core": "file:../../packages/core",
     "@stella/google": "file:../../packages/google",
-    "@stella/meta": "file:../../packages/meta",
     "@stella/openai": "file:../../packages/openai",
     "dotenv": "^16.4.5"
   },
