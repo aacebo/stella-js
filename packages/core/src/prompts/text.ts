@@ -28,7 +28,7 @@ export class TextPrompt extends Prompt<'text'> {
     return this;
   }
 
-  async text(input: string | ContentPart[], on_chunk?: (chunk: string) => void) {
+  async text(input: string | ContentPart[], on_chunk?: (chunk: string) => void | Promise<void>) {
     if (typeof input === 'string') {
       input = input.trim();
     }
@@ -59,12 +59,12 @@ export class TextPrompt extends Prompt<'text'> {
       message,
       history: this.history,
       functions: this._functions
-    }, chunk => {
+    }, async chunk => {
       if (!chunk.content || !on_chunk) return;
       buffer += chunk.content;
 
       try {
-        on_chunk(this.template.render({
+        await on_chunk(this.template.render({
           src: buffer,
           functions: this.function_handlers
         }));

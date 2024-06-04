@@ -37,7 +37,7 @@ export class OpenAITextPlugin implements TextPlugin {
     });
   }
 
-  async text(params: TextParams, on_chunk?: (chunk: ModelMessage) => void): Promise<ModelMessage> {
+  async text(params: TextParams, on_chunk?: (chunk: ModelMessage) => void | Promise<void>): Promise<ModelMessage> {
     const messages = params.history || [];
     messages.push(params.message);
 
@@ -52,7 +52,7 @@ export class OpenAITextPlugin implements TextPlugin {
 
         const output = await fn.handler(call.arguments);
 
-        messages.push( {
+        messages.push({
           role: 'function',
           content: JSON.stringify(output),
           function_id: call.id
@@ -156,7 +156,7 @@ export class OpenAITextPlugin implements TextPlugin {
         }
 
         if (on_chunk) {
-          on_chunk({
+          await on_chunk({
             role: 'model',
             content: delta.content || undefined
           });
@@ -175,7 +175,7 @@ export class OpenAITextPlugin implements TextPlugin {
     params: TextParams,
     messages: Message[],
     message: OpenAI.ChatCompletionMessage | OpenAI.Chat.Completions.ChatCompletionChunk.Choice.Delta,
-    on_chunk?: (chunk: ModelMessage) => void
+    on_chunk?: (chunk: ModelMessage) => void | Promise<void>
   ) {
     const calls: OpenAI.ChatCompletionMessageToolCall[] = [];
 

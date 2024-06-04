@@ -9,6 +9,6 @@ export interface TextParams {
 export interface TextPlugin extends Plugin {
   text(
     params: TextParams,
-    on_chunk?: (chunk: ModelMessage) => void
+    on_chunk?: (chunk: ModelMessage) => void | Promise<void>
   ): Promise<ModelMessage>;
 }
