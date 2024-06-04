@@ -14,8 +14,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "npx rimraf dist",
     "build": "npm run clean && tsc -p .",
-    "start": "npx cross-env DEBUG=stella:*,-*:info node -r dotenv/config .",
-    "debug": "npx cross-env DEBUG=stella:*,-*:info NODE_OPTIONS=\"-r dotenv/config --no-deprecation\" npx ts-node src/index.ts"
+    "start": "npx cross-env DEBUG=promptx:*,-*:info node -r dotenv/config .",
+    "debug": "npx cross-env DEBUG=promptx:*,-*:info NODE_OPTIONS=\"-r dotenv/config --no-deprecation\" npx ts-node src/index.ts"
   },
   "dependencies": {
     "@promptx/core": "file:../../packages/core",

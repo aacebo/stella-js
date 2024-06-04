@@ -16,7 +16,7 @@ export class GoogleTextPlugin implements TextPlugin {
 
   constructor(readonly options: GoogleTextPluginOptions) {
     this.name = options.name || `google:text:${options.model}`;
-    this._log = new Logger(`stella:${this.name}`);
+    this._log = new Logger(`promptx:${this.name}`);
     this._client = new GoogleGenerativeAI(options.api_key).getGenerativeModel(options);
   }
 

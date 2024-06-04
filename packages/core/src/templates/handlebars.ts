@@ -26,7 +26,7 @@ export class HandlebarsTemplate implements Template {
 
   private readonly _handlebars: typeof Handlebars;
   private readonly _template: Handlebars.TemplateDelegate;
-  private readonly _log = new Logger('stella:template:handlebars');
+  private readonly _log = new Logger('promptx:template:handlebars');
 
   constructor(
     readonly src?: string,

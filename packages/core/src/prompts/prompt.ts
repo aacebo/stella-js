@@ -27,7 +27,7 @@ export class Prompt<T extends keyof PluginTypes> {
   constructor(options: PromptOptions<T>) {
     this.name = options.name || options.plugin.name;
     this.plugin = options.plugin;
-    this.log = new Logger(`stella:prompt:${this.name}`);
+    this.log = new Logger(`promptx:prompt:${this.name}`);
     this.template = new StringTemplate();
 
     if (options.instructions) {

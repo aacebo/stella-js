@@ -25,7 +25,7 @@ export class OpenAITextPlugin implements TextPlugin {
 
   constructor(readonly options: OpenAITextPluginOptions) {
     this.name = options.name || `openai:text:${options.model}`;
-    this._log = new Logger(`stella:${this.name}`);
+    this._log = new Logger(`promptx:${this.name}`);
     this._openai = new OpenAI({
       apiKey: options.api_key,
       baseURL: options.base_url,

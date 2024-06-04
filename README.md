@@ -1,4 +1,4 @@
-# stella-js
+# promptx-js
 
 A prompt engine used to interact with LLM's.
 
