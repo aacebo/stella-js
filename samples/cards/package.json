@@ -1,5 +1,5 @@
 {
-  "name": "@stella/cards",
+  "name": "@promptx/cards",
   "version": "0.0.0",
   "description": "",
   "author": "",
@@ -18,8 +18,8 @@
     "debug": "npx cross-env DEBUG=stella:*,-*:info NODE_OPTIONS=\"-r dotenv/config --no-deprecation\" npx ts-node src/index.ts"
   },
   "dependencies": {
-    "@stella/core": "file:../../packages/core",
-    "@stella/openai": "file:../../packages/openai",
+    "@promptx/core": "file:../../packages/core",
+    "@promptx/openai": "file:../../packages/openai",
     "dotenv": "^16.4.5"
   },
   "devDependencies": {

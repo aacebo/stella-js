@@ -1,7 +1,7 @@
 import readline from 'node:readline';
 
-import { AudioPrompt, TextPrompt } from '@stella/core';
-import { OpenAIAudioPlugin, OpenAITextPlugin } from '@stella/openai';
+import { AudioPrompt, TextPrompt } from '@promptx/core';
+import { OpenAIAudioPlugin, OpenAITextPlugin } from '@promptx/openai';
 
 const stream = true;
 let status = false;

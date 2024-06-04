@@ -1,4 +1,4 @@
-import { AudioPlugin, TextToAudioParams, Logger, PluginTag, AudioToTextParams } from '@stella/core';
+import { AudioPlugin, TextToAudioParams, Logger, PluginTag, AudioToTextParams } from '@promptx/core';
 import OpenAI, { toFile } from 'openai';
 
 export interface OpenAIAudioPluginOptions {

@@ -1,4 +1,4 @@
-import { TextPlugin, TextParams, Message, Logger, PluginTag, ModelMessage } from '@stella/core';
+import { TextPlugin, TextParams, Message, Logger, PluginTag, ModelMessage } from '@promptx/core';
 import OpenAI from 'openai';
 import { Stream } from 'openai/streaming';
 

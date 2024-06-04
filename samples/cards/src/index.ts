@@ -1,7 +1,7 @@
 import readline from 'node:readline';
 
-import { TextPrompt } from '@stella/core';
-import { OpenAITextPlugin } from '@stella/openai';
+import { TextPrompt } from '@promptx/core';
+import { OpenAITextPlugin } from '@promptx/openai';
 
 const stream = true;
 const rl = readline.createInterface({

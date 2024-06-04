@@ -1,4 +1,4 @@
-import { TextPlugin, TextParams, Message, Logger, PluginTag, ModelMessage } from '@stella/core';
+import { TextPlugin, TextParams, Message, Logger, PluginTag, ModelMessage } from '@promptx/core';
 import { GoogleGenerativeAI, GenerativeModel, ModelParams, TextPart, GenerateContentRequest } from '@google/generative-ai';
 
 export interface GoogleTextPluginOptions extends ModelParams {

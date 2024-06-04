@@ -1,5 +1,5 @@
 {
-  "name": "@stella/lights",
+  "name": "@promptx/lights",
   "version": "0.0.0",
   "description": "",
   "author": "",
@@ -14,13 +14,13 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "npx rimraf dist",
     "build": "npm run clean && tsc -p .",
-    "start": "npx cross-env DEBUG=stella:*,-*:info node -r dotenv/config .",
-    "debug": "npx cross-env DEBUG=stella:*,-*:info NODE_OPTIONS=\"-r dotenv/config --no-deprecation\" npx ts-node src/index.ts"
+    "start": "npx cross-env DEBUG=promptx:*,-*:info node -r dotenv/config .",
+    "debug": "npx cross-env DEBUG=promptx:*,-*:info NODE_OPTIONS=\"-r dotenv/config --no-deprecation\" npx ts-node src/index.ts"
   },
   "dependencies": {
-    "@stella/core": "file:../../packages/core",
-    "@stella/google": "file:../../packages/google",
-    "@stella/openai": "file:../../packages/openai",
+    "@promptx/core": "file:../../packages/core",
+    "@promptx/google": "file:../../packages/google",
+    "@promptx/openai": "file:../../packages/openai",
     "dotenv": "^16.4.5"
   },
   "devDependencies": {

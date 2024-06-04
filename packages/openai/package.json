@@ -1,5 +1,5 @@
 {
-  "name": "@stella/openai",
+  "name": "@promptx/openai",
   "version": "0.0.0",
   "description": "",
   "author": "",
@@ -16,7 +16,7 @@
     "build": "npm run clean && tsc -p ."
   },
   "dependencies": {
-    "@stella/core": "file:../core",
+    "@promptx/core": "file:../core",
     "openai": "^4.47.1"
   },
   "devDependencies": {
