@@ -1,5 +1,6 @@
 {
   "name": "@promptx/openai",
+  "private": false,
   "version": "0.0.0",
   "description": "",
   "author": "",
