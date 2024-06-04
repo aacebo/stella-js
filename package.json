@@ -3,5 +3,10 @@
   "workspaces": [
     "./packages/*",
     "./samples/*"
-  ]
+  ],
+  "scripts": {
+    "test": "npm run test --workspaces --if-present",
+    "clean": "npm run clean --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present"
+  }
 }
